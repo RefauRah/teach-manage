@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 	"sync"
-	"teaching-management/internal/app"
+	"teaching-management/pkg/app"
 
 	"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
