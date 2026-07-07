@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teaching Management — Manajemen Privat Guru</title>
+    
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="theme-light">
+    <!-- App Container -->
+    <div id="app" class="app-layout hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                    <span class="logo-text">Teach<span>Manage</span></span>
+                </div>
+            </div>
+            
+            <div class="teacher-profile">
+                <div class="avatar">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="info">
+                    <h4 id="teacher-name">Nama Guru</h4>
+                    <p id="teacher-email">email@guru.com</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-link active" data-link>
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/students" class="nav-link" data-link>
+                    <i class="fa-solid fa-user-graduate"></i>
+                    <span>Kelola Murid</span>
+                </a>
+                <a href="/subjects" class="nav-link" data-link>
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Mata Pelajaran</span>
+                </a>
+                <a href="/schedules" class="nav-link" data-link>
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>Jadwal Rutin</span>
+                </a>
+                <a href="/sessions" class="nav-link" data-link>
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                    <span>Sesi Mengajar</span>
+                </a>
+                <a href="/recap" class="nav-link" data-link>
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>Rekap Bulanan</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button id="theme-toggle" class="btn-icon" title="Toggle Tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="logout-btn" class="btn-logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Keluar</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-container">
+            <!-- Mobile Header -->
+            <header class="mobile-header">
+                <button id="mobile-menu-btn" class="btn-icon">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <span class="logo-text">Teach<span>Manage</span></span>
+                </div>
+                <button id="theme-toggle-mobile" class="btn-icon">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </header>
+
+            <!-- Dynamic Content Area -->
+            <main id="app-content" class="content-wrapper"></main>
+        </div>
+    </div>
+
+    <!-- Auth Container (Overlay for Login/Register) -->
+    <div id="auth-container" class="auth-layout">
+        <div class="auth-card glass">
+            <div class="auth-header">
+                <i class="fa-solid fa-graduation-cap logo-icon auth-logo"></i>
+                <h2>Teach<span>Manage</span></h2>
+                <p id="auth-subtitle">Masuk untuk mengelola les privat Anda</p>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="login-email" placeholder="nama@email.com" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+                
+                <p class="auth-switch">Belum punya akun? <a href="#" id="switch-to-register">Daftar Sekarang</a></p>
+            </form>
+            
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form hidden">
+                <div class="form-group">
+                    <label for="register-name">Nama Lengkap</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="register-name" placeholder="Nama Lengkap Anda" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="register-email" placeholder="nama@email.com" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="register-password" placeholder="Minimal 6 karakter" required minlength="6">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-block">Daftar</button>
+                
+                <p class="auth-switch">Sudah punya akun? <a href="#" id="switch-to-login">Masuk</a></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Global Toast Notification -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="/js/theme.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
