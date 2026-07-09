@@ -85,7 +85,7 @@ func (s *RecapService) GetMonthlyRecap(userID uuid.UUID, year, month int) (*mode
 		recapMap[se.StudentID] = r
 	}
 
-	var studentRecaps []model.StudentRecap
+	var studentRecaps = []model.StudentRecap{}
 	var totalEarnings float64
 
 	for _, r := range recapMap {
@@ -119,7 +119,7 @@ func (s *RecapService) GetMonthlyTrend(userID uuid.UUID, limit int) ([]model.Mon
 	}
 
 	now := time.Now()
-	var trend []model.MonthlyTrendItem
+	var trend = []model.MonthlyTrendItem{}
 
 	for i := limit - 1; i >= 0; i-- {
 		t := now.AddDate(0, -i, 0)

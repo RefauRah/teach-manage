@@ -39,7 +39,7 @@ func (r *ScheduleRepository) GetByID(id uuid.UUID) (*model.Schedule, error) {
 }
 
 func (r *ScheduleRepository) GetAll(userID uuid.UUID) ([]model.ScheduleResponse, error) {
-	var schedules []model.ScheduleResponse
+	var schedules = []model.ScheduleResponse{}
 	query := `SELECT sc.id, sc.student_id, sc.subject_id, sc.day_of_week, sc.start_time::text, sc.end_time::text, sc.is_active, 
 	                 st.full_name AS student_name, su.name AS subject_name 
 	          FROM schedules sc
@@ -81,7 +81,7 @@ type ActiveScheduleRow struct {
 }
 
 func (r *ScheduleRepository) GetActiveWithStudentDetails(userID uuid.UUID) ([]ActiveScheduleRow, error) {
-	var rows []ActiveScheduleRow
+	var rows = []ActiveScheduleRow{}
 	query := `SELECT sc.id, sc.student_id, sc.subject_id, sc.day_of_week, sc.start_time::text, sc.end_time::text, 
 	                 st.fee_model, st.fee_amount 
 	          FROM schedules sc

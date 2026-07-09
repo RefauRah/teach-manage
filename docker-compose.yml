@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: teaching-management-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: teaching_management
+    ports:
+      - "5435:5432" # Mapped to 5435 on host to avoid conflict with existing PostgreSQL on port 5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d teaching_management"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: teaching-management-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=teaching_management
+      - DB_SSLMODE=disable
+      - JWT_SECRET=supersecretkeychangeinproduction
+      - JWT_REFRESH_SECRET=anothersecretkeychangeinproduction
+      - JWT_ACCESS_EXPIRY_MINUTES=60
+      - JWT_REFRESH_EXPIRY_DAYS=7
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

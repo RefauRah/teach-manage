@@ -24,7 +24,7 @@ func (r *SubjectRepository) Create(subject *model.Subject) error {
 }
 
 func (r *SubjectRepository) GetAll(userID uuid.UUID) ([]model.Subject, error) {
-	var subjects []model.Subject
+	var subjects = []model.Subject{}
 	query := `SELECT id, user_id, name FROM subjects WHERE user_id = $1 ORDER BY name ASC`
 	err := r.db.Select(&subjects, query, userID)
 	if err != nil {

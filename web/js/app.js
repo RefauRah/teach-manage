@@ -517,7 +517,7 @@ const App = (() => {
     }
 
     function renderCalendarSlots(schedules, dayIndex) {
-        const slots = schedules.filter(s => s.day_of_week === dayIndex);
+        const slots = (schedules || []).filter(s => s.day_of_week === dayIndex);
         if (slots.length === 0) return `<div class="empty-state" style="padding: 20px 0; font-size:0.8rem;"><p>Kosong</p></div>`;
 
         return slots.map(s => `
@@ -1223,7 +1223,7 @@ const App = (() => {
 
             let schedule = null;
             if (scheduleId) {
-                const schedules = await API.get('/schedules');
+                const schedules = await API.get('/schedules') || [];
                 schedule = schedules.find(s => s.id === scheduleId);
             }
 

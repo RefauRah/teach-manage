@@ -40,7 +40,7 @@ func (r *SessionRepository) GetByID(id uuid.UUID) (*model.Session, error) {
 }
 
 func (r *SessionRepository) GetAll(userID uuid.UUID, startDate, endDate string, studentID *uuid.UUID) ([]model.SessionResponse, error) {
-	var sessions []model.SessionResponse
+	var sessions = []model.SessionResponse{}
 	query := `SELECT s.id, s.student_id, s.subject_id, s.schedule_id, s.session_date, s.start_time::text, s.end_time::text, s.status, s.fee_calculated, s.created_at, s.updated_at,
 	                 st.full_name AS student_name, su.name AS subject_name,
 	                 (CASE WHEN rep.id IS NOT NULL THEN TRUE ELSE FALSE END) as has_report
