@@ -9,10 +9,10 @@ import (
 )
 
 type SubjectService struct {
-	subjectRepo *repository.SubjectRepository
+	subjectRepo repository.SubjectRepository
 }
 
-func NewSubjectService(subjectRepo *repository.SubjectRepository) *SubjectService {
+func NewSubjectService(subjectRepo repository.SubjectRepository) *SubjectService {
 	return &SubjectService{subjectRepo: subjectRepo}
 }
 

@@ -11,11 +11,11 @@ import (
 )
 
 type RecapService struct {
-	sessionRepo *repository.SessionRepository
-	studentRepo *repository.StudentRepository
+	sessionRepo repository.SessionRepository
+	studentRepo repository.StudentRepository
 }
 
-func NewRecapService(sessionRepo *repository.SessionRepository, studentRepo *repository.StudentRepository) *RecapService {
+func NewRecapService(sessionRepo repository.SessionRepository, studentRepo repository.StudentRepository) *RecapService {
 	return &RecapService{
 		sessionRepo: sessionRepo,
 		studentRepo: studentRepo,

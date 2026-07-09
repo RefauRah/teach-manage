@@ -20,6 +20,9 @@ type Config struct {
 	JWTRefreshSecret       string
 	JWTAccessExpiryMin     int
 	JWTRefreshExpiryDays   int
+	DBMode                 string
+	SupabaseURL            string
+	SupabaseAnonKey        string
 }
 
 var AppConfig *Config
@@ -42,6 +45,9 @@ func LoadConfig() {
 		JWTRefreshSecret:     getEnv("JWT_REFRESH_SECRET", "anothersecretkeychangeinproduction"),
 		JWTAccessExpiryMin:   getEnvAsInt("JWT_ACCESS_EXPIRY_MINUTES", 60),
 		JWTRefreshExpiryDays: getEnvAsInt("JWT_REFRESH_EXPIRY_DAYS", 7),
+		DBMode:               getEnv("DB_MODE", "postgres"),
+		SupabaseURL:          getEnv("SUPABASE_URL", ""),
+		SupabaseAnonKey:      getEnv("SUPABASE_ANON_KEY", ""),
 	}
 }
 

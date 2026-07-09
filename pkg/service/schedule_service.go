@@ -9,15 +9,15 @@ import (
 )
 
 type ScheduleService struct {
-	scheduleRepo *repository.ScheduleRepository
-	studentRepo  *repository.StudentRepository
-	subjectRepo  *repository.SubjectRepository
+	scheduleRepo repository.ScheduleRepository
+	studentRepo  repository.StudentRepository
+	subjectRepo  repository.SubjectRepository
 }
 
 func NewScheduleService(
-	scheduleRepo *repository.ScheduleRepository,
-	studentRepo *repository.StudentRepository,
-	subjectRepo *repository.SubjectRepository,
+	scheduleRepo repository.ScheduleRepository,
+	studentRepo repository.StudentRepository,
+	subjectRepo repository.SubjectRepository,
 ) *ScheduleService {
 	return &ScheduleService{
 		scheduleRepo: scheduleRepo,

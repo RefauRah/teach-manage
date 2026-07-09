@@ -15,15 +15,15 @@ import (
 )
 
 type ReportService struct {
-	reportRepo  *repository.ReportRepository
-	sessionRepo *repository.SessionRepository
-	studentRepo *repository.StudentRepository
+	reportRepo  repository.ReportRepository
+	sessionRepo repository.SessionRepository
+	studentRepo repository.StudentRepository
 }
 
 func NewReportService(
-	reportRepo *repository.ReportRepository,
-	sessionRepo *repository.SessionRepository,
-	studentRepo *repository.StudentRepository,
+	reportRepo repository.ReportRepository,
+	sessionRepo repository.SessionRepository,
+	studentRepo repository.StudentRepository,
 ) *ReportService {
 	return &ReportService{
 		reportRepo:  reportRepo,

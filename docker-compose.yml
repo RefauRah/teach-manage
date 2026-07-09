@@ -39,6 +39,9 @@ services:
       - JWT_REFRESH_SECRET=anothersecretkeychangeinproduction
       - JWT_ACCESS_EXPIRY_MINUTES=60
       - JWT_REFRESH_EXPIRY_DAYS=7
+      - DB_MODE
+      - SUPABASE_URL
+      - SUPABASE_ANON_KEY
     depends_on:
       db:
         condition: service_healthy

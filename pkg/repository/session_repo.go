@@ -9,15 +9,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type SessionRepository struct {
+type PostgresSessionRepository struct {
 	db *sqlx.DB
 }
 
-func NewSessionRepository(db *sqlx.DB) *SessionRepository {
-	return &SessionRepository{db: db}
+func NewPostgresSessionRepository(db *sqlx.DB) SessionRepository {
+	return &PostgresSessionRepository{db: db}
 }
 
-func (r *SessionRepository) Create(session *model.Session) error {
+func (r *PostgresSessionRepository) Create(session *model.Session) error {
 	query := `INSERT INTO sessions (student_id, subject_id, schedule_id, session_date, start_time, end_time, status, fee_calculated) 
 	          VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
 	          RETURNING id, created_at, updated_at`
@@ -25,7 +25,7 @@ func (r *SessionRepository) Create(session *model.Session) error {
 		Scan(&session.ID, &session.CreatedAt, &session.UpdatedAt)
 }
 
-func (r *SessionRepository) GetByID(id uuid.UUID) (*model.Session, error) {
+func (r *PostgresSessionRepository) GetByID(id uuid.UUID) (*model.Session, error) {
 	var session model.Session
 	query := `SELECT id, student_id, subject_id, schedule_id, session_date, start_time::text, end_time::text, status, fee_calculated, created_at, updated_at 
 	          FROM sessions WHERE id = $1`
@@ -39,7 +39,7 @@ func (r *SessionRepository) GetByID(id uuid.UUID) (*model.Session, error) {
 	return &session, nil
 }
 
-func (r *SessionRepository) GetAll(userID uuid.UUID, startDate, endDate string, studentID *uuid.UUID) ([]model.SessionResponse, error) {
+func (r *PostgresSessionRepository) GetAll(userID uuid.UUID, startDate, endDate string, studentID *uuid.UUID) ([]model.SessionResponse, error) {
 	var sessions = []model.SessionResponse{}
 	query := `SELECT s.id, s.student_id, s.subject_id, s.schedule_id, s.session_date, s.start_time::text, s.end_time::text, s.status, s.fee_calculated, s.created_at, s.updated_at,
 	                 st.full_name AS student_name, su.name AS subject_name,
@@ -80,7 +80,7 @@ func (r *SessionRepository) GetAll(userID uuid.UUID, startDate, endDate string, 
 	return sessions, nil
 }
 
-func (r *SessionRepository) Update(session *model.Session) error {
+func (r *PostgresSessionRepository) Update(session *model.Session) error {
 	query := `UPDATE sessions 
 	          SET student_id = $1, subject_id = $2, schedule_id = $3, session_date = $4, start_time = $5, end_time = $6, status = $7, fee_calculated = $8, updated_at = CURRENT_TIMESTAMP 
 	          WHERE id = $9`
@@ -88,13 +88,13 @@ func (r *SessionRepository) Update(session *model.Session) error {
 	return err
 }
 
-func (r *SessionRepository) Delete(id uuid.UUID) error {
+func (r *PostgresSessionRepository) Delete(id uuid.UUID) error {
 	query := `DELETE FROM sessions WHERE id = $1`
 	_, err := r.db.Exec(query, id)
 	return err
 }
 
-func (r *SessionRepository) BulkCreate(sessions []model.Session) error {
+func (r *PostgresSessionRepository) BulkCreate(sessions []model.Session) error {
 	if len(sessions) == 0 {
 		return nil
 	}
@@ -118,7 +118,7 @@ func (r *SessionRepository) BulkCreate(sessions []model.Session) error {
 	return tx.Commit()
 }
 
-func (r *SessionRepository) CheckExists(studentID uuid.UUID, subjectID uuid.UUID, sessionDate string, startTime string) (bool, error) {
+func (r *PostgresSessionRepository) CheckExists(studentID uuid.UUID, subjectID uuid.UUID, sessionDate string, startTime string) (bool, error) {
 	var exists bool
 	query := `SELECT EXISTS(
 		SELECT 1 FROM sessions 

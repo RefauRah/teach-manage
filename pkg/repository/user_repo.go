@@ -8,15 +8,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type UserRepository struct {
+type PostgresUserRepository struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository(db *sqlx.DB) *UserRepository {
-	return &UserRepository{db: db}
+func NewPostgresUserRepository(db *sqlx.DB) UserRepository {
+	return &PostgresUserRepository{db: db}
 }
 
-func (r *UserRepository) Create(user *model.User) error {
+func (r *PostgresUserRepository) Create(user *model.User) error {
 	query := `INSERT INTO users (name, email, password_hash) 
 	          VALUES ($1, $2, $3) 
 	          RETURNING id, created_at, updated_at`
@@ -24,7 +24,7 @@ func (r *UserRepository) Create(user *model.User) error {
 		Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt)
 }
 
-func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
+func (r *PostgresUserRepository) GetByEmail(email string) (*model.User, error) {
 	var user model.User
 	query := `SELECT id, name, email, password_hash, created_at, updated_at 
 	          FROM users WHERE email = $1`
@@ -38,7 +38,7 @@ func (r *UserRepository) GetByEmail(email string) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) GetByID(id uuid.UUID) (*model.User, error) {
+func (r *PostgresUserRepository) GetByID(id uuid.UUID) (*model.User, error) {
 	var user model.User
 	query := `SELECT id, name, email, password_hash, created_at, updated_at 
 	          FROM users WHERE id = $1`

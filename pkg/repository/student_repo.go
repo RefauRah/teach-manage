@@ -8,15 +8,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type StudentRepository struct {
+type PostgresStudentRepository struct {
 	db *sqlx.DB
 }
 
-func NewStudentRepository(db *sqlx.DB) *StudentRepository {
-	return &StudentRepository{db: db}
+func NewPostgresStudentRepository(db *sqlx.DB) StudentRepository {
+	return &PostgresStudentRepository{db: db}
 }
 
-func (r *StudentRepository) Create(student *model.Student, parent *model.Parent, subjectIDs []uuid.UUID) error {
+func (r *PostgresStudentRepository) Create(student *model.Student, parent *model.Parent, subjectIDs []uuid.UUID) error {
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (r *StudentRepository) Create(student *model.Student, parent *model.Parent,
 	return tx.Commit()
 }
 
-func (r *StudentRepository) Update(student *model.Student, parent *model.Parent, subjectIDs []uuid.UUID) error {
+func (r *PostgresStudentRepository) Update(student *model.Student, parent *model.Parent, subjectIDs []uuid.UUID) error {
 	tx, err := r.db.Beginx()
 	if err != nil {
 		return err
@@ -101,13 +101,13 @@ func (r *StudentRepository) Update(student *model.Student, parent *model.Parent,
 	return tx.Commit()
 }
 
-func (r *StudentRepository) Delete(id uuid.UUID, userID uuid.UUID) error {
+func (r *PostgresStudentRepository) Delete(id uuid.UUID, userID uuid.UUID) error {
 	query := `DELETE FROM students WHERE id = $1 AND user_id = $2`
 	_, err := r.db.Exec(query, id, userID)
 	return err
 }
 
-func (r *StudentRepository) GetAll(userID uuid.UUID) ([]model.StudentResponse, error) {
+func (r *PostgresStudentRepository) GetAll(userID uuid.UUID) ([]model.StudentResponse, error) {
 	var students []model.Student
 	query := `SELECT id, user_id, full_name, birth_date, gender, address, school, grade, phone, notes, fee_model, fee_amount, created_at, updated_at 
 	          FROM students WHERE user_id = $1 ORDER BY full_name ASC`
@@ -195,7 +195,7 @@ func (r *StudentRepository) GetAll(userID uuid.UUID) ([]model.StudentResponse, e
 	return responses, nil
 }
 
-func (r *StudentRepository) GetByID(id uuid.UUID, userID uuid.UUID) (*model.StudentResponse, error) {
+func (r *PostgresStudentRepository) GetByID(id uuid.UUID, userID uuid.UUID) (*model.StudentResponse, error) {
 	var s model.Student
 	query := `SELECT id, user_id, full_name, birth_date, gender, address, school, grade, phone, notes, fee_model, fee_amount, created_at, updated_at 
 	          FROM students WHERE id = $1 AND user_id = $2`

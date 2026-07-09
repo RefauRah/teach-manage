@@ -11,15 +11,15 @@ import (
 )
 
 type SessionService struct {
-	sessionRepo  *repository.SessionRepository
-	studentRepo  *repository.StudentRepository
-	scheduleRepo *repository.ScheduleRepository
+	sessionRepo  repository.SessionRepository
+	studentRepo  repository.StudentRepository
+	scheduleRepo repository.ScheduleRepository
 }
 
 func NewSessionService(
-	sessionRepo *repository.SessionRepository,
-	studentRepo *repository.StudentRepository,
-	scheduleRepo *repository.ScheduleRepository,
+	sessionRepo repository.SessionRepository,
+	studentRepo repository.StudentRepository,
+	scheduleRepo repository.ScheduleRepository,
 ) *SessionService {
 	return &SessionService{
 		sessionRepo:  sessionRepo,

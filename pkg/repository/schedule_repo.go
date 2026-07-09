@@ -8,15 +8,15 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type ScheduleRepository struct {
+type PostgresScheduleRepository struct {
 	db *sqlx.DB
 }
 
-func NewScheduleRepository(db *sqlx.DB) *ScheduleRepository {
-	return &ScheduleRepository{db: db}
+func NewPostgresScheduleRepository(db *sqlx.DB) ScheduleRepository {
+	return &PostgresScheduleRepository{db: db}
 }
 
-func (r *ScheduleRepository) Create(schedule *model.Schedule) error {
+func (r *PostgresScheduleRepository) Create(schedule *model.Schedule) error {
 	query := `INSERT INTO schedules (student_id, subject_id, day_of_week, start_time, end_time, is_active) 
 	          VALUES ($1, $2, $3, $4, $5, $6) 
 	          RETURNING id, created_at, updated_at`
@@ -24,7 +24,7 @@ func (r *ScheduleRepository) Create(schedule *model.Schedule) error {
 		Scan(&schedule.ID, &schedule.CreatedAt, &schedule.UpdatedAt)
 }
 
-func (r *ScheduleRepository) GetByID(id uuid.UUID) (*model.Schedule, error) {
+func (r *PostgresScheduleRepository) GetByID(id uuid.UUID) (*model.Schedule, error) {
 	var schedule model.Schedule
 	query := `SELECT id, student_id, subject_id, day_of_week, start_time::text, end_time::text, is_active, created_at, updated_at 
 	          FROM schedules WHERE id = $1`
@@ -38,7 +38,7 @@ func (r *ScheduleRepository) GetByID(id uuid.UUID) (*model.Schedule, error) {
 	return &schedule, nil
 }
 
-func (r *ScheduleRepository) GetAll(userID uuid.UUID) ([]model.ScheduleResponse, error) {
+func (r *PostgresScheduleRepository) GetAll(userID uuid.UUID) ([]model.ScheduleResponse, error) {
 	var schedules = []model.ScheduleResponse{}
 	query := `SELECT sc.id, sc.student_id, sc.subject_id, sc.day_of_week, sc.start_time::text, sc.end_time::text, sc.is_active, 
 	                 st.full_name AS student_name, su.name AS subject_name 
@@ -54,7 +54,7 @@ func (r *ScheduleRepository) GetAll(userID uuid.UUID) ([]model.ScheduleResponse,
 	return schedules, nil
 }
 
-func (r *ScheduleRepository) Update(schedule *model.Schedule) error {
+func (r *PostgresScheduleRepository) Update(schedule *model.Schedule) error {
 	query := `UPDATE schedules 
 	          SET student_id = $1, subject_id = $2, day_of_week = $3, start_time = $4, end_time = $5, is_active = $6, updated_at = CURRENT_TIMESTAMP 
 	          WHERE id = $7`
@@ -62,25 +62,14 @@ func (r *ScheduleRepository) Update(schedule *model.Schedule) error {
 	return err
 }
 
-func (r *ScheduleRepository) Delete(id uuid.UUID) error {
+func (r *PostgresScheduleRepository) Delete(id uuid.UUID) error {
 	query := `DELETE FROM schedules WHERE id = $1`
 	_, err := r.db.Exec(query, id)
 	return err
 }
 
-// GetActiveWithStudentDetails retrieves active schedules for a user including information needed for fee calculation
-type ActiveScheduleRow struct {
-	ID        uuid.UUID `db:"id"`
-	StudentID uuid.UUID `db:"student_id"`
-	SubjectID uuid.UUID `db:"subject_id"`
-	DayOfWeek int       `db:"day_of_week"`
-	StartTime string    `db:"start_time"`
-	EndTime   string    `db:"end_time"`
-	FeeModel  string    `db:"fee_model"`
-	FeeAmount float64   `db:"fee_amount"`
-}
 
-func (r *ScheduleRepository) GetActiveWithStudentDetails(userID uuid.UUID) ([]ActiveScheduleRow, error) {
+func (r *PostgresScheduleRepository) GetActiveWithStudentDetails(userID uuid.UUID) ([]ActiveScheduleRow, error) {
 	var rows = []ActiveScheduleRow{}
 	query := `SELECT sc.id, sc.student_id, sc.subject_id, sc.day_of_week, sc.start_time::text, sc.end_time::text, 
 	                 st.fee_model, st.fee_amount 

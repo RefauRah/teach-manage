@@ -17,16 +17,32 @@ func SetupApp() *fiber.App {
 	// Initialize config
 	config.LoadConfig()
 
-	// Connect to database
-	database.ConnectDB()
-
 	// Initialize Repositories
-	userRepo := repository.NewUserRepository(database.DB)
-	subjectRepo := repository.NewSubjectRepository(database.DB)
-	studentRepo := repository.NewStudentRepository(database.DB)
-	scheduleRepo := repository.NewScheduleRepository(database.DB)
-	sessionRepo := repository.NewSessionRepository(database.DB)
-	reportRepo := repository.NewReportRepository(database.DB)
+	var userRepo repository.UserRepository
+	var subjectRepo repository.SubjectRepository
+	var studentRepo repository.StudentRepository
+	var scheduleRepo repository.ScheduleRepository
+	var sessionRepo repository.SessionRepository
+	var reportRepo repository.ReportRepository
+
+	if config.AppConfig.DBMode == "supabase" {
+		userRepo = repository.NewSupabaseUserRepository(config.AppConfig.SupabaseURL, config.AppConfig.SupabaseAnonKey)
+		subjectRepo = repository.NewSupabaseSubjectRepository(config.AppConfig.SupabaseURL, config.AppConfig.SupabaseAnonKey)
+		studentRepo = repository.NewSupabaseStudentRepository(config.AppConfig.SupabaseURL, config.AppConfig.SupabaseAnonKey)
+		scheduleRepo = repository.NewSupabaseScheduleRepository(config.AppConfig.SupabaseURL, config.AppConfig.SupabaseAnonKey)
+		sessionRepo = repository.NewSupabaseSessionRepository(config.AppConfig.SupabaseURL, config.AppConfig.SupabaseAnonKey)
+		reportRepo = repository.NewSupabaseReportRepository(config.AppConfig.SupabaseURL, config.AppConfig.SupabaseAnonKey)
+	} else {
+		// Connect to database
+		database.ConnectDB()
+
+		userRepo = repository.NewPostgresUserRepository(database.DB)
+		subjectRepo = repository.NewPostgresSubjectRepository(database.DB)
+		studentRepo = repository.NewPostgresStudentRepository(database.DB)
+		scheduleRepo = repository.NewPostgresScheduleRepository(database.DB)
+		sessionRepo = repository.NewPostgresSessionRepository(database.DB)
+		reportRepo = repository.NewPostgresReportRepository(database.DB)
+	}
 
 	// Initialize Services
 	authService := service.NewAuthService(userRepo)
