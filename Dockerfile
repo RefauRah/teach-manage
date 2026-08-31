@@ -1,32 +1,38 @@
-FROM golang:alpine AS builder
+# Stage 1: Build
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Copy dependency files first for caching
-COPY go.mod go.sum ./
-RUN go mod download
+# Copy dependency specifications
+COPY package*.json ./
+RUN npm ci
 
-# Copy the rest of the source code
-COPY . .
+# Copy source files
+COPY tsconfig*.json vite.config.ts ./
+COPY src/ ./src/
+COPY web/ ./web/
 
-# Build a statically linked binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server cmd/server/main.go
+# Build client and server
+RUN npm run build
 
-# Stage 2: Runtime image
-FROM alpine:latest
-
-# Install certificates and timezone data
-RUN apk add --no-cache ca-certificates tzdata
+# Stage 2: Production Runtime
+FROM node:22-alpine AS runner
 
 WORKDIR /app
+ENV NODE_ENV=production
 
-# Copy the binary and necessary runtime assets
-COPY --from=builder /app/server .
-COPY --from=builder /app/web ./web
-COPY --from=builder /app/pkg/database/migrations ./pkg/database/migrations
+# Install tzdata for timezone handling
+RUN apk add --no-cache tzdata
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy built assets from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/src/database/migrations ./src/database/migrations
 
 # Expose port
 EXPOSE 3000
 
 # Set entry point
-CMD ["./server"]
+CMD ["node", "dist/server/server.js"]
