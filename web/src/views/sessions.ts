@@ -2,6 +2,7 @@ import { API } from '../services/api.js';
 import { Session, Student, Subject } from '../types/index.js';
 import { showToast } from '../utils/toast.js';
 import { openReportModal } from './reports.js';
+import { setButtonLoading, skeletonTableRows } from '../utils/loading.js';
 
 export async function renderSessions(container: HTMLElement): Promise<void> {
   const now = new Date();
@@ -71,11 +72,7 @@ export async function renderSessions(container: HTMLElement): Promise<void> {
               </tr>
             </thead>
             <tbody id="sessions-table-body">
-              <tr>
-                <td colspan="8" class="text-center py-4">
-                  <i class="fa-solid fa-spinner fa-spin"></i> Memuat daftar sesi...
-                </td>
-              </tr>
+              ${skeletonTableRows(8, 4)}
             </tbody>
           </table>
         </div>
@@ -123,6 +120,7 @@ export async function renderSessions(container: HTMLElement): Promise<void> {
 async function loadSessions(container: HTMLElement, students: Student[] = []): Promise<void> {
   const tbody = container.querySelector('#sessions-table-body');
   if (!tbody) return;
+  tbody.innerHTML = skeletonTableRows(8, 4);
 
   const startDate = (container.querySelector('#filter-start-date') as HTMLInputElement)?.value;
   const endDate = (container.querySelector('#filter-end-date') as HTMLInputElement)?.value;
@@ -214,12 +212,15 @@ async function loadSessions(container: HTMLElement, students: Student[] = []): P
       btn.addEventListener('click', async (e) => {
         const id = (e.currentTarget as HTMLElement).getAttribute('data-id')!;
         if (confirm('Apakah Anda yakin ingin menghapus catatan sesi ini?')) {
+          const deleteBtn = e.currentTarget as HTMLButtonElement;
+          const restore = setButtonLoading(deleteBtn, '');
           try {
             await API.del(`/sessions/${id}`);
             showToast('Sesi berhasil dihapus', 'success');
             await loadSessions(container, students);
           } catch (err: any) {
             showToast(err.message || 'Gagal menghapus sesi', 'danger');
+            restore();
           }
         }
       });
@@ -375,6 +376,8 @@ async function openSessionModal(
       status
     };
 
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const restore = setButtonLoading(submitBtn, 'Menyimpan...');
     try {
       if (isEdit) {
         await API.put(`/sessions/${session!.id}`, payload);
@@ -387,6 +390,8 @@ async function openSessionModal(
       await loadSessions(container, students);
     } catch (err: any) {
       showToast(err.message || 'Gagal menyimpan sesi', 'danger');
+    } finally {
+      restore();
     }
   });
 }
@@ -441,6 +446,8 @@ function openGenerateModal(container: HTMLElement): void {
   const form = modalContainer.querySelector('#generate-form') as HTMLFormElement;
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const restore = setButtonLoading(submitBtn, 'Generating...');
 
     const startDate = (modalContainer.querySelector('#gen-start-date') as HTMLInputElement).value;
     const endDate = (modalContainer.querySelector('#gen-end-date') as HTMLInputElement).value;
@@ -455,6 +462,8 @@ function openGenerateModal(container: HTMLElement): void {
       await loadSessions(container);
     } catch (err: any) {
       showToast(err.message || 'Gagal men-generate sesi', 'danger');
+    } finally {
+      restore();
     }
   });
 }

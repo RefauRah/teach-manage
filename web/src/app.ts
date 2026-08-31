@@ -1,6 +1,7 @@
 import { API } from './services/api.js';
 import { themeManager } from './utils/theme.js';
 import { showToast } from './utils/toast.js';
+import { showLoading, hideLoading, setButtonLoading } from './utils/loading.js';
 import { User } from './types/index.js';
 
 import { renderDashboard } from './views/dashboard.js';
@@ -81,6 +82,8 @@ class Application {
 
     loginForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = loginForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const restore = setButtonLoading(submitBtn, 'Sedang masuk...');
       const email = (document.getElementById('login-email') as HTMLInputElement).value.trim();
       const password = (document.getElementById('login-password') as HTMLInputElement).value;
 
@@ -92,11 +95,15 @@ class Application {
         this.navigate('/dashboard');
       } catch (err: any) {
         showToast(err.message || 'Gagal masuk, periksa email dan password Anda', 'danger');
+      } finally {
+        restore();
       }
     });
 
     registerForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = registerForm.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const restore = setButtonLoading(submitBtn, 'Mendaftarkan...');
       const name = (document.getElementById('register-name') as HTMLInputElement).value.trim();
       const email = (document.getElementById('register-email') as HTMLInputElement).value.trim();
       const password = (document.getElementById('register-password') as HTMLInputElement).value;
@@ -109,6 +116,8 @@ class Application {
         this.navigate('/dashboard');
       } catch (err: any) {
         showToast(err.message || 'Gagal mendaftar', 'danger');
+      } finally {
+        restore();
       }
     });
 
@@ -158,7 +167,7 @@ class Application {
     }
   }
 
-  navigate(path: string, pushHistory = true): void {
+  async navigate(path: string, pushHistory = true): Promise<void> {
     const route = this.routes[path] || this.routes['/dashboard'];
 
     if (pushHistory) {
@@ -178,8 +187,15 @@ class Application {
     // Close mobile sidebar on navigate
     document.querySelector('.sidebar')?.classList.remove('open');
 
-    // Render Route
-    route(this.appContent, (p) => this.navigate(p));
+    // Render Route with loading overlay
+    showLoading('Memuat halaman...');
+    try {
+      await route(this.appContent, (p) => this.navigate(p));
+    } catch (err) {
+      console.error('Route render error:', err);
+    } finally {
+      hideLoading();
+    }
   }
 }
 

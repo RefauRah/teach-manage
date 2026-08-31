@@ -1,6 +1,7 @@
 import { API } from '../services/api.js';
 import { MonthlyRecap } from '../types/index.js';
 import { showToast } from '../utils/toast.js';
+import { skeletonTableRows } from '../utils/loading.js';
 
 declare const Chart: any;
 
@@ -182,6 +183,7 @@ async function loadRecap(container: HTMLElement): Promise<void> {
   const year = (container.querySelector('#recap-year') as HTMLSelectElement)?.value || '2026';
   const tbody = container.querySelector('#recap-table-body');
   if (!tbody) return;
+  tbody.innerHTML = skeletonTableRows(6, 3);
 
   try {
     const [recap, trends] = await Promise.all([

@@ -2,6 +2,7 @@ import { API } from '../services/api.js';
 import { Report } from '../types/index.js';
 import { showToast } from '../utils/toast.js';
 import { SignaturePad } from '../components/canvas.js';
+import { setButtonLoading } from '../utils/loading.js';
 
 const RATING_DESCRIPTIONS: Record<number, { label: string; icon: string }> = {
   1: { label: 'Perlu Bimbingan Khusus 😟', icon: 'fa-face-frown' },
@@ -219,10 +220,11 @@ export async function openReportModal(
   });
 
   // Download PDF Handler
-  modalContainer.querySelector('#btn-download-pdf')?.addEventListener('click', async () => {
+  modalContainer.querySelector('#btn-download-pdf')?.addEventListener('click', async (e) => {
     if (!existingReport?.id) return;
+    const pdfBtn = e.currentTarget as HTMLButtonElement;
+    const restore = setButtonLoading(pdfBtn, 'Mengunduh...');
     try {
-      showToast('Menyiapkan berkas PDF laporan...', 'info');
       const blob = await API.get<Blob>(`/reports/${existingReport.id}/pdf`);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -235,6 +237,8 @@ export async function openReportModal(
       showToast('PDF berhasil diunduh', 'success');
     } catch (err: any) {
       showToast(err.message || 'Gagal mengunduh PDF', 'danger');
+    } finally {
+      restore();
     }
   });
 
@@ -269,6 +273,8 @@ export async function openReportModal(
       parent_signature: parentSig
     };
 
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const restore = setButtonLoading(submitBtn, 'Menyimpan...');
     try {
       if (isEdit && existingReport?.id) {
         await API.put(`/reports/${existingReport.id}`, payload);
@@ -281,6 +287,8 @@ export async function openReportModal(
       if (onSaved) onSaved();
     } catch (err: any) {
       showToast(err.message || 'Gagal menyimpan laporan belajar', 'danger');
+    } finally {
+      restore();
     }
   });
 }

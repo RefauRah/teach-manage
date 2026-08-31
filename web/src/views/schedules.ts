@@ -1,6 +1,7 @@
 import { API } from '../services/api.js';
 import { Schedule, Student, Subject } from '../types/index.js';
 import { showToast } from '../utils/toast.js';
+import { setButtonLoading, contentLoader } from '../utils/loading.js';
 
 const DAYS = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 
@@ -29,7 +30,7 @@ export async function renderSchedules(container: HTMLElement): Promise<void> {
             <span class="badge badge-pill badge-primary" id="day-count-${dayIndex}">0</span>
           </div>
           <div class="day-slots" id="day-slots-${dayIndex}">
-            <div class="text-xs text-secondary py-4 text-center">Memuat...</div>
+            ${contentLoader('Memuat...')}
           </div>
           <button class="btn btn-secondary btn-sm btn-block mt-2 btn-add-day-schedule" data-day="${dayIndex}" style="font-size: 0.78rem;">
             <i class="fa-solid fa-plus"></i> Tambah di ${dayName}
@@ -125,12 +126,15 @@ async function loadSchedules(container: HTMLElement): Promise<void> {
       btn.addEventListener('click', async (e) => {
         const id = (e.currentTarget as HTMLElement).getAttribute('data-id')!;
         if (confirm('Apakah Anda yakin ingin menghapus jadwal rutin ini?')) {
+          const deleteBtn = e.currentTarget as HTMLButtonElement;
+          const restore = setButtonLoading(deleteBtn, '');
           try {
             await API.del(`/schedules/${id}`);
             showToast('Jadwal berhasil dihapus', 'success');
             await loadSchedules(container);
           } catch (err: any) {
             showToast(err.message || 'Gagal menghapus jadwal', 'danger');
+            restore();
           }
         }
       });
@@ -289,17 +293,23 @@ async function openScheduleModal(
     };
 
     try {
-      if (isEdit) {
-        await API.put(`/schedules/${schedule!.id}`, payload);
-        showToast('Jadwal rutin berhasil diperbarui', 'success');
-      } else {
-        await API.post('/schedules', payload);
-        showToast('Jadwal rutin baru berhasil ditambahkan', 'success');
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      const restore = setButtonLoading(submitBtn, 'Menyimpan...');
+      try {
+        if (isEdit) {
+          await API.put(`/schedules/${schedule!.id}`, payload);
+          showToast('Jadwal rutin berhasil diperbarui', 'success');
+        } else {
+          await API.post('/schedules', payload);
+          showToast('Jadwal rutin baru berhasil ditambahkan', 'success');
+        }
+        closeModal();
+        await loadSchedules(container);
+      } catch (err: any) {
+        showToast(err.message || 'Gagal menyimpan jadwal', 'danger');
+      } finally {
+        restore();
       }
-      closeModal();
-      await loadSchedules(container);
-    } catch (err: any) {
-      showToast(err.message || 'Gagal menyimpan jadwal', 'danger');
-    }
+    } catch (e) { /* ignore */ }
   });
 }

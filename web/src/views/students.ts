@@ -1,6 +1,7 @@
 import { API } from '../services/api.js';
 import { Student, Subject } from '../types/index.js';
 import { showToast } from '../utils/toast.js';
+import { setButtonLoading, skeletonTableRows } from '../utils/loading.js';
 
 export async function renderStudents(container: HTMLElement): Promise<void> {
   container.innerHTML = `
@@ -54,11 +55,7 @@ export async function renderStudents(container: HTMLElement): Promise<void> {
               </tr>
             </thead>
             <tbody id="students-table-body">
-              <tr>
-                <td colspan="6" class="text-center py-4">
-                  <i class="fa-solid fa-spinner fa-spin"></i> Memuat data murid...
-                </td>
-              </tr>
+              ${skeletonTableRows(6, 4)}
             </tbody>
           </table>
         </div>
@@ -86,11 +83,12 @@ export async function renderStudents(container: HTMLElement): Promise<void> {
 let cachedStudents: Student[] = [];
 
 async function loadStudents(container: HTMLElement): Promise<void> {
+  const tbody = container.querySelector('#students-table-body');
+  if (tbody) tbody.innerHTML = skeletonTableRows(6, 4);
   try {
     cachedStudents = await API.get<Student[]>('/students');
     filterAndRenderStudents(container);
   } catch (err: any) {
-    const tbody = container.querySelector('#students-table-body');
     if (tbody) {
       tbody.innerHTML = `
         <tr>
@@ -210,12 +208,15 @@ function filterAndRenderStudents(container: HTMLElement): void {
     btn.addEventListener('click', async (e) => {
       const id = (e.currentTarget as HTMLElement).getAttribute('data-id')!;
       if (confirm('Apakah Anda yakin ingin menghapus data murid ini beserta riwayatnya?')) {
+        const deleteBtn = e.currentTarget as HTMLButtonElement;
+        const restore = setButtonLoading(deleteBtn, 'Menghapus...');
         try {
           await API.del(`/students/${id}`);
           showToast('Data murid berhasil dihapus', 'success');
           await loadStudents(container);
         } catch (err: any) {
           showToast(err.message || 'Gagal menghapus data murid', 'danger');
+          restore();
         }
       }
     });
@@ -361,6 +362,8 @@ async function openStudentModal(container: HTMLElement, student?: Student): Prom
   const form = modalContainer.querySelector('#student-form') as HTMLFormElement;
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const restore = setButtonLoading(submitBtn, 'Menyimpan...');
 
     const selectedSubjectIds: string[] = [];
     modalContainer.querySelectorAll('input[name="subjects"]:checked').forEach((cb) => {
@@ -402,6 +405,8 @@ async function openStudentModal(container: HTMLElement, student?: Student): Prom
       await loadStudents(container);
     } catch (err: any) {
       showToast(err.message || 'Gagal menyimpan data murid', 'danger');
+    } finally {
+      restore();
     }
   });
 }

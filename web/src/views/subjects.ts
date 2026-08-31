@@ -1,6 +1,7 @@
 import { API } from '../services/api.js';
 import { Subject } from '../types/index.js';
 import { showToast } from '../utils/toast.js';
+import { setButtonLoading, skeletonTableRows } from '../utils/loading.js';
 
 export async function renderSubjects(container: HTMLElement): Promise<void> {
   container.innerHTML = `
@@ -30,11 +31,7 @@ export async function renderSubjects(container: HTMLElement): Promise<void> {
               </tr>
             </thead>
             <tbody id="subjects-table-body">
-              <tr>
-                <td colspan="3" class="text-center py-4">
-                  <i class="fa-solid fa-spinner fa-spin"></i> Memuat mata pelajaran...
-                </td>
-              </tr>
+              ${skeletonTableRows(3, 3)}
             </tbody>
           </table>
         </div>
@@ -56,6 +53,7 @@ export async function renderSubjects(container: HTMLElement): Promise<void> {
 async function loadSubjects(container: HTMLElement): Promise<void> {
   const tbody = container.querySelector('#subjects-table-body');
   if (!tbody) return;
+  tbody.innerHTML = skeletonTableRows(3, 3);
 
   try {
     const subjects = await API.get<Subject[]>('/subjects');
@@ -109,12 +107,15 @@ async function loadSubjects(container: HTMLElement): Promise<void> {
       btn.addEventListener('click', async (e) => {
         const id = (e.currentTarget as HTMLElement).getAttribute('data-id')!;
         if (confirm('Apakah Anda yakin ingin menghapus mata pelajaran ini?')) {
+          const deleteBtn = e.currentTarget as HTMLButtonElement;
+          const restore = setButtonLoading(deleteBtn, '');
           try {
             await API.del(`/subjects/${id}`);
             showToast('Mata pelajaran berhasil dihapus', 'success');
             await loadSubjects(container);
           } catch (err: any) {
             showToast(err.message || 'Gagal menghapus mata pelajaran', 'danger');
+            restore();
           }
         }
       });
@@ -169,10 +170,12 @@ function openSubjectModal(container: HTMLElement, subject?: Subject): void {
   const form = modalContainer.querySelector('#subject-form') as HTMLFormElement;
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const restore = setButtonLoading(submitBtn, 'Menyimpan...');
     const nameInput = modalContainer.querySelector('#sub-name') as HTMLInputElement;
     const name = nameInput.value.trim();
 
-    if (!name) return;
+    if (!name) { restore(); return; }
 
     try {
       if (isEdit) {
@@ -186,6 +189,8 @@ function openSubjectModal(container: HTMLElement, subject?: Subject): void {
       await loadSubjects(container);
     } catch (err: any) {
       showToast(err.message || 'Gagal menyimpan mata pelajaran', 'danger');
+    } finally {
+      restore();
     }
   });
 }
