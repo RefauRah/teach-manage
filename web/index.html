@@ -111,10 +111,10 @@
             <!-- Login Form -->
             <form id="login-form" class="auth-form">
                 <div class="form-group">
-                    <label for="login-email">Email</label>
+                    <label for="login-email">Alamat Email</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="login-email" placeholder="nama@email.com" required>
+                        <input type="email" id="login-email" class="form-control" placeholder="nama@email.com" required autocomplete="email">
                     </div>
                 </div>
                 
@@ -122,11 +122,11 @@
                     <label for="login-password">Password</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="login-password" placeholder="••••••••" required>
+                        <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 24px;">Masuk ke Akun</button>
                 
                 <p class="auth-switch">Belum punya akun? <a href="#" id="switch-to-register">Daftar Sekarang</a></p>
             </form>
@@ -134,18 +134,18 @@
             <!-- Register Form -->
             <form id="register-form" class="auth-form hidden">
                 <div class="form-group">
-                    <label for="register-name">Nama Lengkap</label>
+                    <label for="register-name">Nama Lengkap Guru</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-user"></i>
-                        <input type="text" id="register-name" placeholder="Nama Lengkap Anda" required>
+                        <input type="text" id="register-name" class="form-control" placeholder="Contoh: Budi Santoso, S.Pd." required autocomplete="name">
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="register-email">Email</label>
+                    <label for="register-email">Alamat Email</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-envelope"></i>
-                        <input type="email" id="register-email" placeholder="nama@email.com" required>
+                        <input type="email" id="register-email" class="form-control" placeholder="nama@email.com" required autocomplete="email">
                     </div>
                 </div>
                 
@@ -153,13 +153,13 @@
                     <label for="register-password">Password</label>
                     <div class="input-wrapper">
                         <i class="fa-solid fa-lock"></i>
-                        <input type="password" id="register-password" placeholder="Minimal 6 karakter" required minlength="6">
+                        <input type="password" id="register-password" class="form-control" placeholder="Minimal 6 karakter" required minlength="6" autocomplete="new-password">
                     </div>
                 </div>
                 
-                <button type="submit" class="btn btn-primary btn-block">Daftar</button>
+                <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 24px;">Daftar Akun Baru</button>
                 
-                <p class="auth-switch">Sudah punya akun? <a href="#" id="switch-to-login">Masuk</a></p>
+                <p class="auth-switch">Sudah punya akun? <a href="#" id="switch-to-login">Masuk ke Akun</a></p>
             </form>
         </div>
     </div>
